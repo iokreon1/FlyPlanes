@@ -3,7 +3,7 @@ import prisma from "../../../../../lib/prisma";
 import { makeid } from "@/lib/utils";
 
 const MIDTRANS_URL = process.env.NEXT_PUBLIC_MIDTRANS_TRANSACTION_URL ?? "";
-const MIDTRANS_AUTH_KEY = process.env.NEXT_PUBLIC_MIDTRANS_AUTH_KEY ?? "";
+const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY ?? "";
 
 export async function POST(request: NextRequest) {
 	const body = await request.json();
@@ -48,18 +48,21 @@ export async function POST(request: NextRequest) {
 				},
 			],
 		};
+		const authHeader = Buffer.from(`${MIDTRANS_SERVER_KEY}:`).toString("base64");
 
 		const resMidtrans = await fetch(MIDTRANS_URL, {
-			method: "POST",
-			headers: {
-				accept: "application/json",
-				"content-type": "application/json",
-				authorization: `Basic ${MIDTRANS_AUTH_KEY}`,
-			},
-			body: JSON.stringify(parameter),
-		});
+  method: "POST",
+  headers: {
+    accept: "application/json",
+    "content-type": "application/json",
+    authorization: `Basic ${authHeader}`,
+  },
+  body: JSON.stringify(parameter),
+});
 
 		const midtrans = await resMidtrans.json();
+
+		console.log("Midtrans response:", midtrans);
 
 		await prisma.ticket.update({
 			where: {

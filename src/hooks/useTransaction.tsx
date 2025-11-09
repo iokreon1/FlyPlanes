@@ -58,6 +58,16 @@ const transactionMutate = useMutation<TransactionResponse, unknown, any>({
 			setIsLoading(true);
 			const transaction = await transactionMutate.mutateAsync(bodyData);
 
+			// ⚠️ CEK apakah token ada
+    if (!transaction?.midtrans?.token) {
+      throw new Error("Token Midtrans tidak ditemukan");
+    }
+
+    // ⚠️ CEK apakah window.snap sudah ready
+    if (!window.snap) {
+      throw new Error("Midtrans Snap belum ter-load. Refresh halaman.");
+    }
+
 			// handle midtrans
 			window.snap.pay(transaction.midtrans.token, {
 				onSuccess: (result: unknown) => {

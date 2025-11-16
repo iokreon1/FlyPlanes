@@ -6,27 +6,26 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export async function logout(): Promise<{ error: string } | null> {
+export async function logout(): Promise<void> {
 	const { session } = await getUser();
 
 	if (!session) {
-		return {
-			error: "UnAuthorized",
-		};
+		return;
 	}
 
 	await lucia.invalidateSession(session.id);
 
 	const sessionCookie = lucia.createBlankSessionCookie();
 
-	(await cookies()).set(
+	const cookieStore = await cookies();
+	cookieStore.set(
 		sessionCookie.name,
 		sessionCookie.value,
 		sessionCookie.attributes
 	);
 
 	revalidatePath("/");
-	return redirect("/");
+	redirect("/");
 }
 
 export async function searchFlight(formData: FormData) {

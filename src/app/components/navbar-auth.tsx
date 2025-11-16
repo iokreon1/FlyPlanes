@@ -27,9 +27,7 @@ export default async function NavbarAuth() {
 			)}
 
 			{session && user.role === "CUSTOMER" && (
-				<form action={async (_formData: FormData) => {
-					await logout();
-				}}>
+				<form action={logout}>
 					<Button variant="destructive" className="rounded-full">
 						<LogOut className="w-4 h-4" />
 					</Button>
